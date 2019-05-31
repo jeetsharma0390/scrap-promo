@@ -25,20 +25,26 @@ namespace ExtractImplementation
                 var result = streamReader.ReadToEnd();
             }
 
-            HtmlWeb web = new HtmlWeb();
-            //HtmlDocument doc = web.Load("https://promostandards.org/endpoint/overview/");
-            HtmlDocument doc = web.Load("https://promostandards.org/endpoint/overview/?page=8");
+            var promoUrl = "https://promostandards.org/endpoint/overview/?page=";
+            var pageNum = 1;
 
-            var rows = doc.DocumentNode
-                .SelectNodes("//table[@class='table table-striped']/tr");
-            foreach (var row in rows)
+            HtmlWeb web = new HtmlWeb();
+            HtmlDocument doc = web.Load(promoUrl + pageNum.ToString());
+            var rows = doc.DocumentNode.SelectNodes("//table[@class='table table-striped']/tr");
+            do
             {
-                var cells = row.SelectNodes("./td");
-                if (cells != null)
+                foreach (var row in rows)
                 {
-                    var supplierName = cells[1].InnerText.Trim();
+                    var cells = row.SelectNodes("./td");
+                    if (cells != null)
+                    {
+                        var supplierName = cells[1].InnerText.Trim();
+                    }
                 }
-            }
+                pageNum++;
+                doc = web.Load(promoUrl + pageNum.ToString());
+                rows = doc.DocumentNode.SelectNodes("//table[@class='table table-striped']/tr");
+            } while (rows != null);
         }
     }
 }
