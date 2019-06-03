@@ -22,6 +22,7 @@ namespace ExtractImplementation
             ExcitService excitObj=new ExcitService();
             var excistingSupplier = excitObj.GetExcitImplementationList();
             Console.WriteLine("ExtractImplementation - End - Get data from Excit.");
+            Console.WriteLine($"ExtractImplementation - End  - Get data from Excit, count = {excistingSupplier.Count}");
 
             Console.WriteLine("Press a key to carry on...");
             Console.ReadLine();
