@@ -16,15 +16,11 @@ namespace ExtractImplementation.Services
             var suppliers = new List<Excit>();
             try
             {
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                var request = (HttpWebRequest)WebRequest.Create(url);
-                request.Method = "GET";
-                request.ContentType = "application/json";
-                request.Accept = "application/json";
-                var response = request.GetResponse();
-                using (var streamReader = new StreamReader(response.GetResponseStream()))
+                using (var webClient = new System.Net.WebClient())
                 {
-                    suppliers = JsonConvert.DeserializeObject<List<Excit>>(streamReader.ReadToEnd());
+                    var json = webClient.DownloadString(url);
+                    
+                    suppliers = JsonConvert.DeserializeObject<List<Excit>>(json);
                 }
                 Console.WriteLine($"ExtractImplementation - End - Get suppliers detail from \"{url}\".");
             }
@@ -32,7 +28,9 @@ namespace ExtractImplementation.Services
             {
                 Console.WriteLine(ex);
             }
+
             return suppliers;
+           
         }
     }
 }
