@@ -9,8 +9,7 @@ namespace ExtractImplementation.Services
     public class PromostandardService
     {
         public List<Promostandard> GetPromostandardList()
-        {
-            var promoStandard = new Promostandard();
+        {            
             var promoStandardList = new List<Promostandard>();
             var promoUrl = "https://promostandards.org/endpoint/overview/?page=";
             var pageNum = 1;
@@ -26,14 +25,18 @@ namespace ExtractImplementation.Services
                     var cells = row.SelectNodes("./td");
                     if (cells != null)
                     {
-                        promoStandard.CompanyName = cells[1].InnerText.Trim();
-                        promoStandard.Type = cells[2].InnerText.Trim();
-                        promoStandard.Service = cells[3].InnerText.Trim();
-                        promoStandard.Version = cells[4].InnerText.Trim();
-                        promoStandard.Status = cells[5].InnerText.Trim();
-                        promoStandard.LiveUrl = cells[7].SelectNodes("./a[@href]").FirstOrDefault().Attributes["href"].Value.Trim();
-                        promoStandard.TestUrl = cells[9].SelectNodes("./a[@href]")?.FirstOrDefault().Attributes["href"].Value.Trim();
-                        promoStandardList.Add(promoStandard);
+                        if (cells[2].InnerText.Trim() == "Supplier")
+                        {
+                            var promoStandard = new Promostandard();
+                            promoStandard.CompanyName = cells[1].InnerText.Trim();
+                            promoStandard.Type = cells[2].InnerText.Trim();
+                            promoStandard.Service = cells[3].InnerText.Trim();
+                            promoStandard.Version = cells[4].InnerText.Trim();
+                            promoStandard.Status = cells[5].InnerText.Trim();
+                            promoStandard.LiveUrl = cells[7].SelectNodes("./a[@href]").FirstOrDefault().Attributes["href"].Value.Trim();
+                            promoStandard.TestUrl = cells[9].SelectNodes("./a[@href]")?.FirstOrDefault().Attributes["href"].Value.Trim();
+                            promoStandardList.Add(promoStandard);
+                        }
                     }
                 }
                 Console.WriteLine($"ExtractImplementation - End - Get Promostandard data from page {pageNum}, count = {rows.Count - 1}");
