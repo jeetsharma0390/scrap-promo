@@ -24,59 +24,57 @@ namespace ExtractImplementation
             var existingSupplier = excitObj.GetExcitImplementationList();
             Console.WriteLine($"ExtractImplementation - End  - Get data from Excit, count = {existingSupplier.SupplierAPIs.Count}");
 
-            var promoUrl = promoStandardList.Where(p => !string.IsNullOrEmpty(p.LiveUrl)).Select(p => p.LiveUrl.Trim()).Distinct();
-            var url_count = promoUrl.Count();
+            var promoUrl = promoStandardList.Where(promo => !string.IsNullOrEmpty(promo.LiveUrl)).Select(promo => promo.LiveUrl.Trim()).Distinct();
 
-            var supplierURL = existingSupplier.Configuration.SelectMany(e => e.Services.Where(e1 => !string.IsNullOrEmpty(e1.Value.Url)).Select(e2 => e2.Value.Url.Trim())).Distinct();
-            var s_count = supplierURL.Count();
+            var supplierUrl = existingSupplier.Configuration
+                                                    .SelectMany(suppliers => suppliers.Services.Where(services => !string.IsNullOrEmpty(services.Value.Url))
+                                                    .Select(service => service.Value.Url.Trim())).Distinct();
 
-            supplierURL = supplierURL.Where(s => !s.Contains("ftp") && !s.Contains("dummy"));
-            var s_count0 = supplierURL.Count();
+            //var res = promoUrl.Except(supplierURL);
+            //var r_count = res.Count();
 
-            //supplierURL = supplierURL.Where(s => !s.Contains("dummy"));
-            //var s_count1 = supplierURL.Count();
-            //var l1 = supplierURL.Where(s => s.Contains("ftp"));
-            //var c1 = l1.Count();
-            //var l2 = supplierURL.Where(s => s.Contains("dummy"));
-            //var c2 = l2.Count();
-
-            var res = promoUrl.Except(supplierURL);
-            var r_count = res.Count();
-
-            TextWriter txt = new StreamWriter("D:\\promo.csv");
-            foreach (var p in promoUrl)
-            {
-                txt.WriteLine(p);
-            }
-            txt.Close();
-
-            TextWriter txt1 = new StreamWriter("D:\\supplier.csv");
-            foreach (var s in supplierURL)
-            {
-                txt1.WriteLine(s);
-            }
-            txt1.Close();
-
-            TextWriter txt2 = new StreamWriter("D:\\result.csv");
-            foreach (var r in res)
-            {
-                txt2.WriteLine(r);
-            }
-            txt2.Close();
-
-
-            int cnt = 0;
+            List<string> urlsNotImplemented = new List<string>();
+            int count = 0;
             foreach (var promo in promoUrl)
             {
-                foreach (var supUrl in supplierURL)
+                var flag = false;
+                foreach (var supp in supplierUrl)
                 {
-                    if (supUrl.Equals(promo, StringComparison.OrdinalIgnoreCase))
+                    if (supp.Equals(promo, StringComparison.OrdinalIgnoreCase))
                     {
-                        cnt++;
+                        count++;
+                        flag = true;
                         break;
                     }
                 }
+                if (flag == false)
+                {
+                    urlsNotImplemented.Add((promo));
+                }
             }
+
+            TextWriter txt = new StreamWriter("E:\\ExcelFiles\\Promostandard.csv");
+
+            //Add the Header row for CSV file.
+            string csvFile = "Company, " + "Type, " + "Service, " + "Version, " + "Status, " + "LiveURL, " + "ASI Action,";
+            txt.WriteLine(csvFile);
+
+            var finalResult = promoStandardList.Where(p => urlsNotImplemented.Contains(p.LiveUrl)).Distinct().ToList();
+
+            foreach (var promostandard in finalResult)
+            {
+                string row = string.Empty;
+                row += promostandard.CompanyName.ToString().Replace(",", ";") + ',';
+                row += promostandard.Type.ToString().Replace(",", ";") + ',';
+                row += promostandard.Service.ToString().Replace(",", ";") + ',';
+                row += promostandard.Version.ToString().Replace(",", ";") + ',';
+                row += promostandard.Status.ToString().Replace(",", ";") + ',';
+                row += promostandard.LiveUrl.ToString().Replace(",", ";") + ',';
+                row += "Implemented,";
+                txt.WriteLine(row);
+            }
+            txt.Close();
+
             Console.WriteLine("Press a key to carry on...");
             Console.ReadLine();
         }

@@ -11,7 +11,7 @@ namespace ExtractImplementation.Services
         public List<Promostandard> GetPromostandardList()
         {            
             var promoStandardList = new List<Promostandard>();
-            var promoUrl = "https://promostandards.org/endpoint/overview/?page=";
+            var promoUrl = System.Configuration.ConfigurationManager.AppSettings["PromostandardSiteURL"]; 
             var pageNum = 1;
 
             HtmlWeb web = new HtmlWeb();
@@ -46,7 +46,6 @@ namespace ExtractImplementation.Services
                 rows = doc.DocumentNode.SelectNodes("//table[@class='table table-striped']/tr");
                 if (rows == null)
                     Console.WriteLine($"No data on page {pageNum}");
-
             }
             return promoStandardList;
         }

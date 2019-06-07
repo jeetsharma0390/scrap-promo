@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using Newtonsoft.Json;
 using ExtractImplementation.Model;
 using ASI.Services.Excit;
 using ASI.Contracts.Excit.Supplier.Version1;
@@ -29,14 +26,13 @@ namespace ExtractImplementation.Services
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"ExtractImplementation - Error occured while getting list of supplier {ex.Message.ToString()}");
                 throw ex;
             }
-
             foreach (var supplier in supplierDetails)
             {
                 var configuration = excitClient.GetSupplierConfiguration(supplier.CompanyId).Result;
                 excit.Configuration.Add(configuration);
-                //SplitString(configuration);
             }
             return excit;
         }
