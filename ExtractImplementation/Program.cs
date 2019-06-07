@@ -34,6 +34,7 @@ namespace ExtractImplementation
             //var r_count = res.Count();
 
             List<string> urlsNotImplemented = new List<string>();
+            List<string> urlsImplemented = new List<string>();
             int count = 0;
             foreach (var promo in promoUrl)
             {
@@ -44,24 +45,25 @@ namespace ExtractImplementation
                     {
                         count++;
                         flag = true;
+                        urlsImplemented.Add(promo);
                         break;
                     }
                 }
                 if (flag == false)
                 {
-                    urlsNotImplemented.Add((promo));
+                    urlsNotImplemented.Add(promo);
                 }
             }
 
-            TextWriter txt = new StreamWriter("E:\\ExcelFiles\\Promostandard.csv");
+            TextWriter txt = new StreamWriter("E:\\ExcelFiles\\Promostandard-stage.csv");
 
             //Add the Header row for CSV file.
-            string csvFile = "Company, " + "Type, " + "Service, " + "Version, " + "Status, " + "LiveURL, " + "ASI Action,";
+            string csvFile = "Company, " + "Type, " + "Service, " + "Version, " + "Status, " + "LiveURL, " + "ASI Status,";
             txt.WriteLine(csvFile);
 
-            var finalResult = promoStandardList.Where(p => urlsNotImplemented.Contains(p.LiveUrl)).Distinct().ToList();
-
-            foreach (var promostandard in finalResult)
+            var unImplementedPromostandardList = promoStandardList.Where(p => urlsNotImplemented.Contains(p.LiveUrl)).Distinct().ToList();
+            var unImplementedPromostandardOrderedList = unImplementedPromostandardList.OrderBy(promo => promo.CompanyName).ThenBy(promo => promo.Service).ThenBy(promo => promo.Version);
+            foreach (var promostandard in unImplementedPromostandardOrderedList)
             {
                 string row = string.Empty;
                 row += promostandard.CompanyName.ToString().Replace(",", ";") + ',';
@@ -70,6 +72,22 @@ namespace ExtractImplementation
                 row += promostandard.Version.ToString().Replace(",", ";") + ',';
                 row += promostandard.Status.ToString().Replace(",", ";") + ',';
                 row += promostandard.LiveUrl.ToString().Replace(",", ";") + ',';
+                row += "UnImplemented,";
+                txt.WriteLine(row);
+            }
+
+
+            var implementedPromostandardList = promoStandardList.Where(p => urlsImplemented.Contains(p.LiveUrl)).Distinct().ToList();
+            var implementedPromostandardOrderedList = implementedPromostandardList.OrderBy(promo => promo.CompanyName).ThenBy(promo => promo.Service).ThenBy(promo => promo.Version);
+            foreach (var implemented in implementedPromostandardOrderedList)
+            {
+                string row = string.Empty;
+                row += implemented.CompanyName.ToString().Replace(",", ";") + ',';
+                row += implemented.Type.ToString().Replace(",", ";") + ',';
+                row += implemented.Service.ToString().Replace(",", ";") + ',';
+                row += implemented.Version.ToString().Replace(",", ";") + ',';
+                row += implemented.Status.ToString().Replace(",", ";") + ',';
+                row += implemented.LiveUrl.ToString().Replace(",", ";") + ',';
                 row += "Implemented,";
                 txt.WriteLine(row);
             }
