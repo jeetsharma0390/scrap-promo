@@ -9,9 +9,9 @@ namespace ExtractImplementation.Services
     public class PromostandardService
     {
         public List<Promostandard> GetPromostandardList()
-        {            
+        {
             var promoStandardList = new List<Promostandard>();
-            var promoUrl = System.Configuration.ConfigurationManager.AppSettings["PromostandardSiteURL"]; 
+            var promoUrl = System.Configuration.ConfigurationManager.AppSettings["PromostandardSiteURL"];
             var pageNum = 1;
 
             HtmlWeb web = new HtmlWeb();
@@ -20,6 +20,7 @@ namespace ExtractImplementation.Services
             var rows = doc.DocumentNode.SelectNodes("//table[@class='table table-striped']/tr");
             while (rows != null)
             {
+                var count = 0;
                 foreach (var row in rows)
                 {
                     var cells = row.SelectNodes("./td");
@@ -36,10 +37,11 @@ namespace ExtractImplementation.Services
                             promoStandard.LiveUrl = cells[7].SelectNodes("./a[@href]").FirstOrDefault().Attributes["href"].Value.Trim();
                             promoStandard.TestUrl = cells[9].SelectNodes("./a[@href]")?.FirstOrDefault().Attributes["href"].Value.Trim();
                             promoStandardList.Add(promoStandard);
+                            count++;
                         }
                     }
                 }
-                Console.WriteLine($"ExtractImplementation - End - Get Promostandard data from page {pageNum}, count = {rows.Count - 1}");
+                Console.WriteLine($"ExtractImplementation - End - Get Promostandard data from page {pageNum}, count = {count}");
                 pageNum++;
                 Console.WriteLine($"ExtractImplementation - Start - Get Promostandard data from page {pageNum}.");
                 doc = web.Load(promoUrl + pageNum.ToString());
